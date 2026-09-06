@@ -28,8 +28,8 @@ button:disabled{opacity:.6}.msg{margin-top:14px;padding:12px;border-radius:10px;
     <div class="sub">Escolha os dias em que você pode participar da próxima pelada.</div>
 
     <form id="form">
-      <label for="nome">Nome completo</label>
-      <input id="nome" maxlength="100" required placeholder="Digite seu nome completo">
+      <label for="nome">Primeiro nome</label>
+      <input id="nome" maxlength="40" required placeholder="Digite seu primeiro nome">
 
       <label>Escolha um ou mais dias</label>
       <div class="days" id="days"></div>
@@ -48,10 +48,18 @@ button:disabled{opacity:.6}.msg{margin-top:14px;padding:12px;border-radius:10px;
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbyf1NYVh8-HCaO16GlKAf2o2gt-859FgG7Ji3cxs7uvI6kubkSyZzTmLyFSmhQ2T7IM/exec";
 const DIAS = [
-  {id:"2026-09-12", label:"Sábado — 12/09"},
-  {id:"2026-09-13", label:"Domingo — 13/09"},
+  {id:"2026-09-15", label:"Terça-feira — 15/09"},
+  {id:"2026-09-16", label:"Quarta-feira — 16/09"},
+  {id:"2026-09-17", label:"Quinta-feira — 17/09"},
+  {id:"2026-09-18", label:"Sexta-feira — 18/09"},
   {id:"2026-09-19", label:"Sábado — 19/09"},
-  {id:"2026-09-20", label:"Domingo — 20/09"}
+  {id:"2026-09-20", label:"Domingo — 20/09"},
+  {id:"2026-09-22", label:"Terça-feira — 22/09"},
+  {id:"2026-09-23", label:"Quarta-feira — 23/09"},
+  {id:"2026-09-24", label:"Quinta-feira — 24/09"},
+  {id:"2026-09-25", label:"Sexta-feira — 25/09"},
+  {id:"2026-09-26", label:"Sábado — 26/09"},
+  {id:"2026-09-27", label:"Domingo — 27/09"}
 ];
 
 const days=document.getElementById("days");
@@ -79,7 +87,7 @@ document.getElementById("form").addEventListener("submit",async e=>{
   const dias=[...document.querySelectorAll('input[name="dias"]:checked')].map(x=>x.value);
   const msg=document.getElementById("msg"), btn=document.getElementById("btn");
   msg.className="msg"; msg.textContent="";
-  if(nome.split(/\s+/).length<2){msg.className="msg err";msg.textContent="Digite seu nome completo.";return}
+  if(!nome){msg.className="msg err";msg.textContent="Digite seu primeiro nome.";return}
   if(!dias.length){msg.className="msg err";msg.textContent="Escolha pelo menos um dia.";return}
   btn.disabled=true;btn.textContent="ENVIANDO...";
   try{
