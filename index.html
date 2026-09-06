@@ -5,19 +5,27 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Perebas Futebol Clube — Enquete</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f2f4f7;color:#17202a}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f2f4f7;color:#17202a}
 .wrap{max-width:620px;margin:auto;padding:20px}
 .card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 30px #00000012;margin:14px 0}
-h1{margin:0 0 6px;font-size:28px}h2{font-size:20px;margin-top:0}
+h1{margin:0 0 6px;font-size:28px}
+h2{font-size:20px;margin-top:0}
 .sub{color:#667085;margin-bottom:22px}
 label{display:block;font-weight:700;margin:16px 0 8px}
 input{width:100%;padding:14px;border:1px solid #d0d5dd;border-radius:10px;font-size:16px}
-.days{display:grid;gap:10px}.day{border:1px solid #d0d5dd;border-radius:12px;padding:14px;cursor:pointer}
-.day input{width:auto;margin-right:10px}.day:has(input:checked){border-color:#167c3a;background:#eefaf2}
+.days{display:grid;gap:10px}
+.day{border:1px solid #d0d5dd;border-radius:12px;padding:14px;cursor:pointer}
+.day input{width:auto;margin-right:10px}
+.day:has(input:checked){border-color:#167c3a;background:#eefaf2}
 button{width:100%;padding:15px;border:0;border-radius:11px;background:#167c3a;color:white;font-weight:700;font-size:16px;cursor:pointer;margin-top:18px}
-button:disabled{opacity:.6}.msg{margin-top:14px;padding:12px;border-radius:10px;display:none}
-.ok{display:block;background:#ecfdf3;color:#067647}.err{display:block;background:#fef3f2;color:#b42318}
-.result{display:flex;align-items:center;gap:10px;margin:12px 0}.bar{height:10px;background:#167c3a;border-radius:99px;min-width:4px}.count{font-weight:700;white-space:nowrap}
+button:disabled{opacity:.6}
+.msg{margin-top:14px;padding:12px;border-radius:10px;display:none}
+.ok{display:block;background:#ecfdf3;color:#067647}
+.err{display:block;background:#fef3f2;color:#b42318}
+.result{display:flex;align-items:center;gap:10px;margin:12px 0}
+.bar{height:10px;background:#167c3a;border-radius:99px;min-width:4px}
+.count{font-weight:700;white-space:nowrap}
 .small{font-size:13px;color:#667085}
 </style>
 </head>
@@ -25,7 +33,7 @@ button:disabled{opacity:.6}.msg{margin-top:14px;padding:12px;border-radius:10px;
 <div class="wrap">
   <div class="card">
     <h1>⚽ Perebas Futebol Clube</h1>
-    <div class="sub">Escolha os dias em que você pode participar da próxima pelada.</div>
+    <div class="sub">Escolha todos os dias em que você pode participar da próxima pelada.</div>
 
     <form id="form">
       <label for="nome">Primeiro nome</label>
@@ -46,7 +54,8 @@ button:disabled{opacity:.6}.msg{margin-top:14px;padding:12px;border-radius:10px;
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyf1NYVh8-HCaO16GlKAf2o2gt-859FgG7Ji3cxs7uvI6kubkSyZzTmLyFSmhQ2T7IM/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzA69sEUsRevBSHNqhAupN2j0ghW5UBG21JVFb6HPAjgv1ov451V2vMzXo7cc3b93cL/exec";
+
 const DIAS = [
   {id:"2026-09-15", label:"Terça-feira — 15/09 — À noite"},
   {id:"2026-09-16", label:"Quarta-feira — 16/09 — À noite"},
@@ -62,45 +71,101 @@ const DIAS = [
   {id:"2026-09-27", label:"Domingo — 27/09 — 09h às 12h"}
 ];
 
-const days=document.getElementById("days");
-DIAS.forEach(d=>{
-  days.insertAdjacentHTML("beforeend",
-    `<label class="day"><input type="checkbox" name="dias" value="${d.id}"> ${d.label}</label>`);
+const days = document.getElementById("days");
+
+DIAS.forEach(d => {
+  days.insertAdjacentHTML(
+    "beforeend",
+    `<label class="day"><input type="checkbox" name="dias" value="${d.id}"> ${d.label}</label>`
+  );
 });
 
-async function carregar(){
-  try{
-    const r=await fetch(API_URL+"?action=results");
-    const data=await r.json();
-    const max=Math.max(1,...DIAS.map(d=>data[d.id]||0));
-    document.getElementById("results").innerHTML=DIAS.map(d=>{
-      const n=data[d.id]||0, w=Math.round(n/max*100);
-      return `<div class="result"><div style="flex:1">${d.label}<div class="bar" style="width:${w}%"></div></div><div class="count">${n}</div></div>`;
+async function carregar() {
+  try {
+    const r = await fetch(API_URL + "?action=results");
+    const data = await r.json();
+
+    if (data.ok === false) throw new Error(data.error || "Erro ao carregar");
+
+    const max = Math.max(1, ...DIAS.map(d => data[d.id] || 0));
+
+    document.getElementById("results").innerHTML = DIAS.map(d => {
+      const n = data[d.id] || 0;
+      const w = Math.round(n / max * 100);
+
+      return `
+        <div class="result">
+          <div style="flex:1">
+            ${d.label}
+            <div class="bar" style="width:${w}%"></div>
+          </div>
+          <div class="count">${n}</div>
+        </div>`;
     }).join("");
-  }catch(e){
-    document.getElementById("results").innerHTML='<div class="small">Não foi possível carregar os resultados.</div>';
+
+  } catch (e) {
+    document.getElementById("results").innerHTML =
+      '<div class="small">Não foi possível carregar os resultados.</div>';
   }
 }
-document.getElementById("form").addEventListener("submit",async e=>{
+
+document.getElementById("form").addEventListener("submit", async e => {
   e.preventDefault();
-  const nome=document.getElementById("nome").value.trim();
-  const dias=[...document.querySelectorAll('input[name="dias"]:checked')].map(x=>x.value);
-  const msg=document.getElementById("msg"), btn=document.getElementById("btn");
-  msg.className="msg"; msg.textContent="";
-  if(!nome){msg.className="msg err";msg.textContent="Digite seu primeiro nome.";return}
-  if(!dias.length){msg.className="msg err";msg.textContent="Escolha pelo menos um dia.";return}
-  btn.disabled=true;btn.textContent="ENVIANDO...";
-  try{
-    const body=new URLSearchParams({nome,dias:dias.join(",")});
-    const r=await fetch(API_URL,{method:"POST",body});
-    const data=await r.json();
-    if(!data.ok) throw new Error(data.error||"Erro");
-    msg.className="msg ok";msg.textContent="Votação registrada com sucesso! ⚽";
-    document.getElementById("form").reset(); carregar();
-  }catch(err){
-    msg.className="msg err";msg.textContent="Não foi possível registrar. Tente novamente.";
-  }finally{btn.disabled=false;btn.textContent="CONFIRMAR VOTAÇÃO";}
+
+  const nome = document.getElementById("nome").value.trim().split(/\s+/)[0];
+  const dias = [...document.querySelectorAll('input[name="dias"]:checked')].map(x => x.value);
+
+  const msg = document.getElementById("msg");
+  const btn = document.getElementById("btn");
+
+  msg.className = "msg";
+  msg.textContent = "";
+
+  if (!nome) {
+    msg.className = "msg err";
+    msg.textContent = "Digite seu primeiro nome.";
+    return;
+  }
+
+  if (!dias.length) {
+    msg.className = "msg err";
+    msg.textContent = "Escolha pelo menos um dia.";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "ENVIANDO...";
+
+  try {
+    const body = new URLSearchParams({
+      nome,
+      dias: dias.join(",")
+    });
+
+    const r = await fetch(API_URL, {
+      method: "POST",
+      body
+    });
+
+    const data = await r.json();
+
+    if (!data.ok) throw new Error(data.error || "Erro ao registrar.");
+
+    msg.className = "msg ok";
+    msg.textContent = "Votação registrada com sucesso! ⚽";
+
+    document.getElementById("form").reset();
+    carregar();
+
+  } catch (err) {
+    msg.className = "msg err";
+    msg.textContent = err.message || "Não foi possível registrar. Tente novamente.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "CONFIRMAR VOTAÇÃO";
+  }
 });
+
 carregar();
 </script>
 </body>
